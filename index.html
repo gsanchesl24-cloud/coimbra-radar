@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coimbra Radar — Painel de notícias</title>
+<style>
+:root { color-scheme: light dark; --bg: light-dark(#f3f5f8,#10141b); --panel: light-dark(#ffffff,#191f29); --panel2: light-dark(#f7f9fc,#202735); --text: light-dark(#172033,#f1f5fb); --muted: light-dark(#657087,#a7b2c5); --line: light-dark(#e0e5ed,#303a4a); --accent: light-dark(#155eef,#78a6ff); --accent2: light-dark(#e8efff,#243a63); --green: light-dark(#137a4b,#68d7a0); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+#app { min-height: 100vh; width: 100%; background: var(--bg); }
+header { padding: 25px clamp(18px,4vw,48px) 20px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.topline { display:flex; justify-content:space-between; gap:16px; align-items:center; flex-wrap:wrap; }
+.brand { display:flex; align-items:center; gap:12px; }
+.logo { width:42px; height:42px; display:grid; place-items:center; border-radius:13px; background:var(--accent); color:white; font-weight:900; font-size:18px; letter-spacing:-1px; }
+h1 { margin:0; font-size:clamp(22px,3vw,31px); letter-spacing:-1px; }
+.sub { color:var(--muted); font-size:13px; margin-top:4px; }
+.status { border:1px solid var(--line); background:var(--panel2); padding:8px 11px; border-radius:999px; font-size:12px; display:flex; align-items:center; gap:7px; }
+.dot { width:7px;height:7px;border-radius:50%;background:#e5a23d;display:inline-block; }
+main { max-width:1440px; margin:auto; padding:24px clamp(14px,3vw,36px) 48px; }
+.notice { background:var(--accent2); border:1px solid var(--line); padding:13px 15px; border-radius:12px; font-size:13px; line-height:1.5; margin-bottom:20px; }
+.metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+.metric { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; }
+.metric-label { font-size:12px;color:var(--muted); margin-bottom:8px; }
+.metric-value { font-size:25px;font-weight:750; letter-spacing:-.7px; }
+.metric-foot { font-size:11px;color:var(--muted);margin-top:6px; }
+.layout { display:grid; grid-template-columns:260px minmax(0,1fr); gap:18px; align-items:start; }
+.sidebar,.content { background:var(--panel); border:1px solid var(--line); border-radius:16px; }
+.sidebar { padding:18px; }
+.section-title { font-size:13px;font-weight:750; margin:0 0 13px; }
+.field { margin-bottom:17px; }
+label { display:block; color:var(--muted); font-size:11px; font-weight:650; margin-bottom:7px; text-transform:uppercase; letter-spacing:.06em; }
+select,input { width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 11px; background:var(--panel2); color:var(--text); font:inherit; font-size:13px; outline:none; }
+select:focus,input:focus { border-color:var(--accent); }
+.btn { cursor:pointer; border:1px solid var(--line); border-radius:9px; padding:10px 12px; background:var(--panel2); color:var(--text); font:inherit; font-size:12px; font-weight:700; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; gap:7px; }
+.btn.primary { background:var(--accent); color:white; border-color:var(--accent); }
+.btn.full { width:100%; }
+.help { font-size:11px; color:var(--muted); line-height:1.5; margin-top:8px; }
+.content { overflow:hidden; }
+.content-head { padding:18px 20px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.content-head h2 { margin:0; font-size:17px; }
+.content-head p { margin:5px 0 0; font-size:12px; color:var(--muted); }
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+.articles { padding:6px 20px 20px; }
+.article { padding:17px 0; border-bottom:1px solid var(--line); }
+.article:last-child { border-bottom:0; }
+.article-top { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:9px; }
+.tags { display:flex; flex-wrap:wrap; gap:6px; }
+.tag { border-radius:6px; background:var(--panel2); border:1px solid var(--line); color:var(--muted); padding:4px 7px; font-size:10px; }
+.tag.category { color:var(--accent); }
+.time { font-size:11px; color:var(--muted); }
+.article h3 { margin:0 0 7px; font-size:16px; letter-spacing:-.25px; line-height:1.35; }
+.article p { margin:0 0 10px; font-size:13px; line-height:1.55; color:var(--muted); }
+.article-bottom { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+.source { font-size:11px; color:var(--muted); }
+.article a { color:var(--accent); font-size:12px; font-weight:700; text-decoration:none; }
+.empty { padding:40px 10px; text-align:center; color:var(--muted); font-size:13px; }
+.feeds { margin-top:18px; padding:18px; background:var(--panel); border:1px solid var(--line); border-radius:16px; }
+.feeds-head { display:flex; align-items:start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.feeds h2 { font-size:16px; margin:0 0 5px; }
+.feeds p { margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
+.feed-buttons { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+footer { color:var(--muted); font-size:11px; line-height:1.5; padding:20px 4px 0; }
+@media(max-width:850px){ .layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.sidebar .section-title,.sidebar .btn.full,.sidebar .help{grid-column:1/-1} }
+@media(max-width:520px){ .metrics{gap:8px}.metric{padding:12px}.metric-value{font-size:21px}.sidebar{display:block}.content-head{padding:15px}.articles{padding:4px 15px 15px} }
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="topline">
+    <div class="brand"><div class="logo">CR</div><div><h1>Coimbra Radar</h1><div class="sub">Central de monitorização de notícias · Distrito de Coimbra</div></div></div>
+    <div class="status"><span class="dot"></span> Protótipo · ainda sem ligação automática</div>
+  </div>
+</header>
+<main>
+  <div class="notice"><strong>Nota sobre esta versão:</strong> este é um protótipo interativo para testar o painel e os filtros. Os cartões abaixo são exemplos demonstrativos, não notícias reais. Os botões RSS abrem pesquisas atuais no Google Notícias; a recolha automática dentro deste painel exige uma ligação externa (por exemplo, Inoreader/n8n e alojamento).</div>
+  <section class="metrics">
+    <div class="metric"><div class="metric-label">Cobertura pretendida</div><div class="metric-value">17</div><div class="metric-foot">Municípios do distrito</div></div>
+    <div class="metric"><div class="metric-label">Categorias</div><div class="metric-value">Todas</div><div class="metric-foot">Sem limitar o tema</div></div>
+    <div class="metric"><div class="metric-label">Fontes no protótipo</div><div class="metric-value">RSS</div><div class="metric-foot">Google Notícias + imprensa</div></div>
+    <div class="metric"><div class="metric-label">Atualização</div><div class="metric-value">Variável</div><div class="metric-foot">Depende de cada fonte</div></div>
+  </section>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="section-title">Filtrar notícias</h2>
+      <div class="field"><label for="search">Pesquisar palavras</label><input id="search" placeholder="Ex.: incêndio, obras, emprego"></div>
+      <div class="field"><label for="municipality">Município</label><select id="municipality"><option value="">Todos os municípios</option></select></div>
+      <div class="field"><label for="category">Categoria</label><select id="category"><option value="">Todas as categorias</option></select></div>
+      <div class="field"><label for="source">Fonte</label><select id="source"><option value="">Todas as fontes</option></select></div>
+      <button class="btn full" id="reset">Limpar filtros</button>
+      <p class="help">Os filtros funcionam sobre os cartões demonstrativos. Depois de ligar fontes reais, a mesma lógica pode ser usada nas notícias recolhidas.</p>
+    </aside>
+    <section class="content">
+      <div class="content-head"><div><h2>Últimas notícias</h2><p id="count">A carregar exemplos…</p></div><div class="toolbar"><button class="btn" id="copyQuery">Copiar pesquisa</button><button class="btn primary" id="openRss">Abrir RSS</button></div></div>
+      <div class="articles" id="articles"></div>
+    </section>
+  </div>
+  <section class="feeds">
+    <div class="feeds-head"><div><h2>Atalhos para feeds RSS</h2><p>Abrem pesquisas no Google Notícias para o distrito. Podes guardar os endereços no Inoreader para acompanhar novas publicações.</p></div><a class="btn" href="https://www.inoreader.com/" target="_blank" rel="noopener">Abrir Inoreader ↗</a></div>
+    <div class="feed-buttons" id="feedButtons"></div>
+  </section>
+  <footer>Coimbra Radar · protótipo de interface. As pesquisas RSS são fornecidas pelo Google Notícias e podem não cobrir todos os meios locais. Para uso contínuo será necessário configurar a recolha, armazenamento e, se desejado, resumos por IA. Verifica sempre a fonte original antes de partilhar informação urgente.</footer>
+</main>
+</div>
+<script>
+const municipalities = ["Arganil","Cantanhede","Coimbra","Condeixa-a-Nova","Figueira da Foz","Góis","Lousã","Mira","Miranda do Corvo","Montemor-o-Velho","Oliveira do Hospital","Pampilhosa da Serra","Penacova","Penela","Soure","Tábua","Vila Nova de Poiares"];
+const categories = ["Política","Sociedade","Criminalidade","Acidentes e trânsito","Incêndios e proteção civil","Economia e emprego","Educação","Saúde","Desporto","Cultura e eventos","Ambiente","Infraestruturas","Todas as notícias"];
+const sample = [
+ {title:"Exemplo demonstrativo: município anuncia intervenção numa estrada local",summary:"Cartão fictício para demonstrar como uma notícia sobre obras, mobilidade e impacto nos residentes aparecerá no painel.",municipality:"Coimbra",category:"Infraestruturas",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"},
+ {title:"Exemplo demonstrativo: Proteção Civil publica aviso à população",summary:"Este espaço poderá apresentar alertas oficiais, instruções de segurança e ligações diretas às entidades responsáveis, quando existirem publicações confirmadas.",municipality:"Figueira da Foz",category:"Incêndios e proteção civil",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"},
+ {title:"Exemplo demonstrativo: iniciativa de emprego e formação no distrito",summary:"Resumo curto com a informação principal, o local, as datas relevantes e o link para consultar a publicação original.",municipality:"Cantanhede",category:"Economia e emprego",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"},
+ {title:"Exemplo demonstrativo: evento cultural com programação aberta ao público",summary:"A IA poderá resumir o programa, a localização, os horários e as condições de participação sem substituir os detalhes publicados pela organização.",municipality:"Lousã",category:"Cultura e eventos",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"},
+ {title:"Exemplo demonstrativo: reunião municipal debate assuntos locais",summary:"Um cartão de política local poderá incluir o tema em discussão, as decisões anunciadas e a ligação para a ata ou notícia de origem.",municipality:"Oliveira do Hospital",category:"Política",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"},
+ {title:"Exemplo demonstrativo: associação desportiva anuncia atividade",summary:"As notícias desportivas podem ser organizadas por modalidade, clube, município e data, mantendo a referência à fonte original.",municipality:"Miranda do Corvo",category:"Desporto",source:"Fonte demonstrativa",time:"Exemplo · não é notícia real"}
+];
+const $ = id => document.getElementById(id);
+municipalities.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;$('municipality').appendChild(o)});
+categories.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;$('category').appendChild(o)});
+[...new Set(sample.map(a=>a.source))].forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;$('source').appendChild(o)});
+function filtered(){const q=$('search').value.toLocaleLowerCase('pt-PT');return sample.filter(a=>(!q||(a.title+' '+a.summary+' '+a.municipality+' '+a.category).toLocaleLowerCase('pt-PT').includes(q))&&(!$('municipality').value||a.municipality===$('municipality').value)&&(!$('category').value||$('category').value==='Todas as notícias'||a.category===$('category').value)&&(!$('source').value||a.source===$('source').value));}
+function render(){const items=filtered();$('count').textContent=items.length+' cartões demonstrativos · sem notícias reais ligadas';$('articles').innerHTML='';if(!items.length){$('articles').innerHTML='<div class="empty">Nenhum cartão corresponde aos filtros. Experimenta limpar ou alterar a pesquisa.</div>';return;}items.forEach(a=>{const el=document.createElement('article');el.className='article';el.innerHTML='<div class="article-top"><div class="tags"><span class="tag category"></span><span class="tag location"></span></div><span class="time"></span></div><h3></h3><p></p><div class="article-bottom"><span class="source"></span><span class="tag">DEMONSTRAÇÃO</span></div>';el.querySelector('.category').textContent=a.category;el.querySelector('.location').textContent=a.municipality;el.querySelector('.time').textContent=a.time;el.querySelector('h3').textContent=a.title;el.querySelector('p').textContent=a.summary;el.querySelector('.source').textContent='Fonte: '+a.source;$('articles').appendChild(el)});}
+function rssUrl(query){return 'https://news.google.com/rss/search?q='+encodeURIComponent(query+' when:1d')+'&hl=pt-PT&gl=PT&ceid=PT:pt-PT';}
+function currentQuery(){const m=$('municipality').value;const q=$('search').value.trim();const c=$('category').value;let bits=[];if(m)bits.push('"'+m+'"');else bits.push('("Coimbra" OR "Figueira da Foz" OR "Cantanhede" OR "Lousã" OR "Arganil" OR "Condeixa-a-Nova" OR "Góis" OR "Mira" OR "Miranda do Corvo" OR "Montemor-o-Velho" OR "Oliveira do Hospital" OR "Pampilhosa da Serra" OR "Penacova" OR "Penela" OR "Soure" OR "Tábua" OR "Vila Nova de Poiares")');if(q)bits.push(q);if(c&&c!=='Todas as notícias')bits.push('"'+c+'"');return bits.join(' ');}
+$('search').addEventListener('input',render);['municipality','category','source'].forEach(id=>$(id).addEventListener('change',render));$('reset').addEventListener('click',()=>{$('search').value='';$('municipality').value='';$('category').value='';$('source').value='';render()});$('copyQuery').addEventListener('click',async()=>{const text=currentQuery()+' when:1d';try{await navigator.clipboard.writeText(text);$('copyQuery').textContent='Pesquisa copiada ✓';setTimeout(()=>$('copyQuery').textContent='Copiar pesquisa',1800)}catch(e){window.prompt('Copia esta pesquisa:',text)}});$('openRss').addEventListener('click',()=>window.open(rssUrl(currentQuery()),'_blank','noopener'));
+const feedList=[['Todo o distrito','Coimbra OR "Figueira da Foz" OR Cantanhede OR Lousã OR Arganil'],['Emergências','Coimbra incêndio OR acidente OR Proteção Civil'],['Política local','Coimbra Câmara Municipal OR município'],['Emprego','Coimbra emprego OR recrutamento OR formação'],['Cultura e eventos','Coimbra festival OR cultura OR evento'],['Educação','Coimbra escola OR universidade OR educação']];feedList.forEach(([label,q])=>{const a=document.createElement('a');a.className='btn';a.textContent=label+' ↗';a.href=rssUrl(q);a.target='_blank';a.rel='noopener';$('feedButtons').appendChild(a)});render();
+</script>
+</body>
+</html>
